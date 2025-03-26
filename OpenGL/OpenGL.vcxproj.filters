@@ -41,6 +41,12 @@
     <ClInclude Include="Camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragment.frag" />
@@ -53,5 +59,16 @@
     <None Include="shaders\lighting.frag" />
     <None Include="shaders\Axis.frag" />
     <None Include="shaders\Axis.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\box.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\box_edge.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\matrix_light.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

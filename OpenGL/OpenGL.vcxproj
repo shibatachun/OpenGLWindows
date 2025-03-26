@@ -27,8 +27,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="filesystem.h" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Axis.frag" />
@@ -41,6 +43,11 @@
     <None Include="shaders\vertex.vert" />
     <None Include="shaders\vertex1.vert" />
     <None Include="shaders\vertex2.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\box.png" />
+    <Image Include="textures\box_edge.png" />
+    <Image Include="textures\matrix_light.jpg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -129,6 +136,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>E:\Schoolwork\AllInclude\glfw-3.4.bin.WIN64\include;E:\Schoolwork\AllInclude\glew-2.1.0\include;E:\Schoolwork\AllInclude\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,6 +154,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>E:\Schoolwork\AllInclude\glfw-3.4.bin.WIN64\include;E:\Schoolwork\AllInclude\glew-2.1.0\include;E:\Schoolwork\AllInclude\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
