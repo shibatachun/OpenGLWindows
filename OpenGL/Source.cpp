@@ -418,6 +418,8 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 1920.0f / 1080.0f, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
+        glm::vec4 fixedLightPos = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f);
+
         //×ø±êÖá
         AxisShader.use();
         AxisShader.setMat4("view", view);
@@ -429,8 +431,10 @@ int main()
 
         //¹âÔ´
         glm::mat4 Lmodel = glm::mat4(1.0f);
+        glm::vec4 rotatedLightPos = glm::vec4(Lmodel * glm::vec4(lightPos, 1.0f));
+     
         lightingShader.use();
-        Lmodel = glm::rotate(Lmodel, (float)glfwGetTime() * 2, glm::vec3(1.0f, 1.0f, -1.0f));
+        //Lmodel = glm::rotate(Lmodel, (float)glfwGetTime() * 2, glm::vec3(1.0f, 1.0f, -1.0f));
         Lmodel = glm::translate(Lmodel, lightPos);
         Lmodel = glm::scale(Lmodel, glm::vec3(0.2f));
         lightingShader.setMat4("projection", projection);
@@ -450,19 +454,41 @@ int main()
         ColorShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         ColorShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         ColorShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-        ColorShader.setFloat("emission_strength", cos(glfwGetTime()));
-        ColorShader.setFloat("timevalue", glfwGetTime());
-        ColorShader.setFloat("material.shininess", 64.0f);
+     
+        ColorShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(30.0f)));
+        ColorShader.setFloat("light.constant", 1.0f);
+        ColorShader.setFloat("light.linear", 0.09f);
+        ColorShader.setFloat("light.quadratic", 0.032f);
+        //ColorShader.setFloat("emission_strength", cos(glfwGetTime()));
+        //ColorShader.setFloat("timevalue", glfwGetTime());
+
+        ColorShader.setVec3("light.position", camera.Position);
+        ColorShader.setVec3("light.direction", camera.Front);
+
+        ColorShader.setFloat("material.shininess", 128.0f);
         ColorShader.setMat4("projection", projection);
         ColorShader.setMat4("view", view);
-        glm::vec3 rotatedLightPos = glm::vec3(Lmodel * glm::vec4(lightPos, 1.0f));  
+
+       
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::rotate(model, (float)glfwGetTime() , glm::vec3(0.0f, 1.0f, 0.0f));
         ColorShader.setMat4("model", model);
-        ColorShader.setVec3("light.position",rotatedLightPos);
         ColorShader.setVec3("viewPos", camera.Position);
+     
         glBindVertexArray(VAOs[4]);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+       
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 model{ 1.0f };
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            ColorShader.setMat4("model", model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+       
 
 
 

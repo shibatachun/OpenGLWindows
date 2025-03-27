@@ -28,6 +28,8 @@ class Shader
     }
     void setVec3(const std::string& name, glm::vec3 &value) const;
     void setVec3(const std::string& name, float x, float y, float z) const;
+    void setVec4(const std::string& name, glm::vec4 &value) const;
+    void setVec4(const std::string& name, float x, float y, float z, float w) const;
 
 
 
