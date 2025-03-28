@@ -118,3 +118,49 @@ void Shader::setVec4(const std::string& name, float x, float y, float z, float w
 }
 
 
+void Shader::setPointLightAttribute(const std::string name, glm::vec3& position, float constant, float linear, float quadratic, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular)
+{
+    //…Ë÷√Œª÷√
+    
+    setVec3(name+lightPostion, position);
+    setVec3(name + lightAmbient, ambient);
+    setVec3(name + lightDiffuse, diffuse);
+    setVec3(name + lightSpecular, specular);
+    setFloat(name + lightCanstant, constant);
+    setFloat(name + lightLinear, linear);
+    setFloat(name + lightQuadratic, quadratic);
+}
+
+void Shader::setDirLightAttribute(const std::string name, glm::vec3& direction, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular)
+{
+    setVec3(name + lightDirection, direction);
+    setVec3(name + lightAmbient, ambient);
+    setVec3(name + lightDiffuse, diffuse);
+    setVec3(name + lightSpecular, specular);
+}
+
+void Shader::setSpotLightAttribute(const std::string name, glm::vec3& direction, glm::vec3& position,
+    float cutOff, float outerCutOff, float constant, float linear, float quadratic,
+    glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular)
+{
+    setVec3(name + lightDirection, direction);
+    setVec3(name + lightPostion, position);
+    setVec3(name + lightAmbient, ambient);
+    setVec3(name + lightDiffuse, diffuse);
+    setVec3(name + lightSpecular, specular);
+    setFloat(name + lightCutOff, cutOff);
+    setFloat(name + lightOuterCutOff, outerCutOff);
+    setFloat(name + lightCanstant, constant);
+    setFloat(name + lightLinear, linear);
+    setFloat(name + lightQuadratic, quadratic);
+}
+
+void Shader::setMVPAttribute( glm::mat4& model, glm::mat4& view, glm::mat4& projection)
+{
+    setMat4(ModelAttribute, model);
+    setMat4(ViewAttribute, view);
+    setMat4( ProjectionAttribute, projection);
+
+}
+
+

@@ -1,15 +1,5 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "stb_image.h"
-#include <iostream>
-#include <filesystem>
-#include <cmath>
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "Shader.hpp"
-#include "Camera.hpp"
-
+#include "Common.h"
+#include "Entity.h"
 
 float deltaTime = 0.0f; // 当前帧与上一帧的时间差
 float lastFrame = 0.0f;
@@ -21,6 +11,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+glm::vec3 lightAmbient{ 0.2f, 0.2f, 0.2f };
+glm::vec3 lightDiffuse{ 0.5f, 0.5f, 0.5f };
+glm::vec3 lightSpecular{ 1.0f, 1.0f, 1.0f };
+float lightConstant{ 1.0f };
+float lightLinear{ 0.09f };
+float lightQuadratic{ 0.032f };
 
 bool firstMouse = true;
 float yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
@@ -80,6 +77,11 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        camera.ProcessKeyboard(DESCENT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.ProcessKeyboard(ASCENT, deltaTime);
+    
 
 
 }
@@ -298,6 +300,13 @@ int main()
         1, 2, 3  // 第二个三角形
     };
 
+    //点光源位置
+    glm::vec3 pointLightPositions[] = {
+    glm::vec3(0.7f,  0.2f,  2.0f),
+    glm::vec3(2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3(0.0f,  0.0f, -3.0f)
+    };
     //物体
     unsigned int VAOs[5];
     unsigned int VBOs[5];
@@ -369,16 +378,11 @@ int main()
     unsigned int axisVAO, axisVBO;
     glGenVertexArrays(1, &axisVAO);
     glGenBuffers(1, &axisVBO);
-
     glBindVertexArray(axisVAO);
     glBindBuffer(GL_ARRAY_BUFFER, axisVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
-
-    // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-    // color attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -395,7 +399,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-
+    Entity Cube(ColorShader, VAOs[4]);
 
     //观察矩阵
     while (!glfwWindowShouldClose(window))
@@ -406,9 +410,6 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float timeValue = glfwGetTime();
@@ -417,29 +418,20 @@ int main()
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 1920.0f / 1080.0f, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-
         glm::vec4 fixedLightPos = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f);
-
         //坐标轴
         AxisShader.use();
-        AxisShader.setMat4("view", view);
-        AxisShader.setMat4("projection", projection);
-        AxisShader.setMat4("model", model);
+        AxisShader.setMVPAttribute(model, view, projection);
         glBindVertexArray(axisVAO);
         glDrawArrays(GL_LINES, 0, 6);  // 3 lines, each with 2 points
-
 
         //光源
         glm::mat4 Lmodel = glm::mat4(1.0f);
         glm::vec4 rotatedLightPos = glm::vec4(Lmodel * glm::vec4(lightPos, 1.0f));
-     
         lightingShader.use();
-        //Lmodel = glm::rotate(Lmodel, (float)glfwGetTime() * 2, glm::vec3(1.0f, 1.0f, -1.0f));
         Lmodel = glm::translate(Lmodel, lightPos);
         Lmodel = glm::scale(Lmodel, glm::vec3(0.2f));
-        lightingShader.setMat4("projection", projection);
-        lightingShader.setMat4("view", view);
-        lightingShader.setMat4("model", Lmodel);
+        lightingShader.setMVPAttribute(Lmodel, view, projection);
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -451,33 +443,18 @@ int main()
         glBindTexture(GL_TEXTURE_2D, iron_box_edge_texture);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, matrix_light_texture);
-        ColorShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-        ColorShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        ColorShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-     
-        ColorShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-        lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(30.0f)));
-        ColorShader.setFloat("light.constant", 1.0f);
-        ColorShader.setFloat("light.linear", 0.09f);
-        ColorShader.setFloat("light.quadratic", 0.032f);
-        //ColorShader.setFloat("emission_strength", cos(glfwGetTime()));
-        //ColorShader.setFloat("timevalue", glfwGetTime());
-
-        ColorShader.setVec3("light.position", camera.Position);
-        ColorShader.setVec3("light.direction", camera.Front);
-
-        ColorShader.setFloat("material.shininess", 128.0f);
-        ColorShader.setMat4("projection", projection);
-        ColorShader.setMat4("view", view);
-
-       
+        ColorShader.setInt("NR_POINT_LIGHTS", 1);
+        ColorShader.setPointLightAttribute("pointLights[0]", lightPos, lightConstant, lightLinear, lightQuadratic, lightAmbient, lightDiffuse, lightSpecular);
+        ColorShader.setDirLightAttribute("dirLight", cameraFront, lightAmbient, lightDiffuse, lightSpecular);
+        ColorShader.setFloat("Lightmultiplier", 10.0f);
+        ColorShader.setSpotLightAttribute("spotLight", camera.Front, camera.Position,
+        glm::cos(glm::radians(5.0f)), glm::cos(glm::radians(15.6f)), lightConstant, lightLinear, lightQuadratic,
+        lightAmbient, lightDiffuse, lightSpecular);
+        ColorShader.setFloat("material.shininess", 32.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::rotate(model, (float)glfwGetTime() , glm::vec3(0.0f, 1.0f, 0.0f));
-        ColorShader.setMat4("model", model);
         ColorShader.setVec3("viewPos", camera.Position);
-     
-        glBindVertexArray(VAOs[4]);
-       
+        ColorShader.setMVPAttribute(model, view, projection);
         for (unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model{ 1.0f };
@@ -485,35 +462,9 @@ int main()
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             ColorShader.setMat4("model", model);
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            Cube.Draw();
         }
-       
-
-
-
-        //材质
-  /*    textureShader.use();
-        textureShader.setFloat("time", timeValue);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        textureShader.setMat4("model", model);
-        textureShader.setMat4("view", view);
-        textureShader.setMat4("projection", projection);
-        glBindVertexArray(VAOs[3]);
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            int modelLoc = glGetUniformLocation(textureShader.ID, "model");
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }*/
+      
 
         glfwSwapBuffers(window);
         glfwPollEvents();

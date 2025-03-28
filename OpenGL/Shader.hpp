@@ -15,6 +15,21 @@ class Shader
 {
     public:
     unsigned int ID;
+    const std::string lightPostion= ".position";
+    const std::string lightDirection= ".direction";
+    const std::string lightAmbient= ".ambient";
+    const std::string lightDiffuse= ".diffuse";
+    const std::string lightSpecular= ".specular";
+    const std::string lightCanstant= ".constant";
+    const std::string lightLinear= ".linear";
+    const std::string lightQuadratic= ".quadratic";
+    const std::string lightCutOff = ".cutOff";
+    const std::string lightOuterCutOff = ".outerCutOff";
+
+    const std::string ModelAttribute = "model";
+    const std::string ViewAttribute = "view";
+    const std::string ProjectionAttribute = "projection";
+  
 
     Shader(const char* vertexPath, const char* fragmentPath);
 
@@ -30,6 +45,28 @@ class Shader
     void setVec3(const std::string& name, float x, float y, float z) const;
     void setVec4(const std::string& name, glm::vec4 &value) const;
     void setVec4(const std::string& name, float x, float y, float z, float w) const;
+
+    void setPointLightAttribute(const std::string name,glm::vec3& position, float constant, float linear, float quadratic, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular);
+    void setDirLightAttribute(const std::string name, glm::vec3& direction, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular);
+  /*  struct SpotLight {
+        vec3 direction;
+        vec3 position;
+        float cutOff;
+        float outerCutOff;
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
+        float constant;
+        float linear;
+        float quadratic;
+    };*/
+    void setSpotLightAttribute( const std::string name, glm::vec3& direction, glm::vec3& position,
+                                float cutOff, float outerCutOff, float constant, float linear, float quadratic,
+                                glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular);
+
+    void setMVPAttribute(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
+
+    
 
 
 
