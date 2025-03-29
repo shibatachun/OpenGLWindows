@@ -79,5 +79,8 @@
     <Image Include="textures\matrix_light.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="QQ_1743259293726.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

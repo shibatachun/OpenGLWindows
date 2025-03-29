@@ -48,6 +48,7 @@
     <None Include="shaders\vertex2.vert" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="QQ_1743259293726.png" />
     <Image Include="textures\box.png" />
     <Image Include="textures\box_edge.png" />
     <Image Include="textures\matrix_light.jpg" />
